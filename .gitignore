@@ -1,0 +1,7 @@
+.*.sw?
+*~
+tags
+cscope.*
+build/
+doc/
+data/
