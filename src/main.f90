@@ -2,7 +2,6 @@ program main
     use md_time
     use md_system_data
     use md_basis
-    !use md_hamiltonian
     
     implicit none
     call date_and_time(values = n_time_start)

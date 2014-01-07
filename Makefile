@@ -1,7 +1,6 @@
 #fortran complier
 FC     	= ifort
-#FC		= gfortran		
-FFLAGS	= -llapack #-fp-model source -fp-speculation=safe
+FFLAGS	= -llapack
 
 DBGDIR = build/debug/
 RLSDIR = build/release/
@@ -20,17 +19,15 @@ RLSTARGET = $(RLSDIR)$(EXEC)
 RLSOBJS = $(addprefix $(RLSDIR), $(OBJECTS))
 RLSMODS = $(wildcard $(RLSDIR)*.mod)
 rls : RFFLAGS = -O3 -ipo -xHost -static -mtune=pentium4m $(FFLAGS)
-rls : MKRLSDIR $(RLSTARGET)
-MKRLSDIR :
-	mkdir -p $(RLSDIR)
+rls : $(RLSTARGET)
 $(RLSTARGET) : $(RLSOBJS)
 	$(FC) $(RFFLAGS) -o $@ $^
 $(RLSOBJS) : $(RLSDIR)%.o : %.f90
-	if [ ! -d "$(RLSDIR)" ]; then mkdir -p $(RLSDIR);  fi
+	if [ ! -d "$(RLSDIR)" ]; then mkdir -p $(RLSDIR); fi
 	$(FC) $(RFFLAGS) -c $< -o $@ -module $(RLSDIR)
 
 runrls : $(RLSTARGET)
-	if [ ! -d "$(RLSDATDIR)" ]; then mkdir -p $(RLSDATDIR);  fi
+	if [ ! -d "$(RLSDATDIR)" ]; then mkdir -p $(RLSDATDIR); fi
 	cd $(RLSDATDIR) && ../../$<
 
 #debug
@@ -42,11 +39,11 @@ dbg : $(DBGTARGET)
 $(DBGTARGET) : $(DBGOBJS)
 	$(FC) $(DFFLAGS) -o $@ $^
 $(DBGOBJS) : $(DBGDIR)%.o : %.f90
-	if [ ! -d "$(DBGDIR)" ]; then mkdir -p $(DBGDIR);  fi
+	if [ ! -d "$(DBGDIR)" ]; then mkdir -p $(DBGDIR); fi
 	$(FC) $(DFFLAGS) -c $< -o $@ -module $(DBGDIR)
 
 rundbg : $(DBGTARGET)
-	if [ ! -d "$(DBGDATDIR)" ]; then mkdir -p $(DBGDATDIR);  fi
+	if [ ! -d "$(DBGDATDIR)" ]; then mkdir -p $(DBGDATDIR); fi
 	cd $(DBGDATDIR) && ../../$<
 
 #clean debug files
