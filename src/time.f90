@@ -1,6 +1,7 @@
 !>time module
 module md_time
     implicit none
+    public  ::  sb_time
     !>time when the program starts
     integer(kind = 4), dimension(8) :: n_time_start
     !>time when the program ends
@@ -18,7 +19,7 @@ module md_time
         integer(kind = 4), dimension(8), intent(in)  :: time_end
         !>time program runs
         integer(kind = 4), dimension(8), intent(out) :: time_run
-    
+
         !local variables
         integer(kind = 4) :: n_day
 
@@ -58,8 +59,8 @@ module md_time
                 write(*, *) "Incorrect time."
                 return
         end select
-    
-        time_run = time_end - time_start
+
+        time_run = time_end-time_start
         !>milliseconds program runs
         if (time_run(8) < 0) then
             time_run(8) = time_run(8)+1000
