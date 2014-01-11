@@ -1,3 +1,6 @@
+#writtn by Xue Bing 
+#2014-01-10
+
 #fortran complier
 FC     = ifort
 FFLAGS = -llapack
