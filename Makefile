@@ -1,6 +1,6 @@
 #fortran complier
-FC     	= ifort
-FFLAGS	= -llapack
+FC     = ifort
+FFLAGS = -llapack
 
 DBGDIR = build/debug/
 RLSDIR = build/release/
@@ -12,56 +12,68 @@ FILES   = time.f90 system_data.f90 basis.f90 main.f90
 OBJECTS = $(FILES:.f90=.o)
 vpath %.f90 $(SRCDIR)
 
-.PHONY : dbg rls rundbg runrls cldbg clrls clean cdbg crls ctags cscope tags doc
-
-#release
-RLSTARGET = $(RLSDIR)$(EXEC)
-RLSOBJS = $(addprefix $(RLSDIR), $(OBJECTS))
-RLSMODS = $(wildcard $(RLSDIR)*.mod)
-rls : RFFLAGS = -O3 -ipo -xHost -static -mtune=pentium4m $(FFLAGS)
-rls : $(RLSTARGET)
-$(RLSTARGET) : $(RLSOBJS)
-	$(FC) $(RFFLAGS) -o $@ $^
-$(RLSOBJS) : $(RLSDIR)%.o : %.f90
-	if [ ! -d "$(RLSDIR)" ]; then mkdir -p $(RLSDIR); fi
-	$(FC) $(RFFLAGS) -c $< -o $@ -module $(RLSDIR)
-
-runrls : $(RLSTARGET)
-	if [ ! -d "$(RLSDATDIR)" ]; then mkdir -p $(RLSDATDIR); fi
-	cd $(RLSDATDIR) && ../../$<
+.PHONY : dbg rls rundbg runrls cldbg clrls clean cndbg cnrls ctags cscope tags doc dir dbgdir rlsdir
 
 #debug
 DBGTARGET = $(DBGDIR)$(EXEC)
 DBGOBJS = $(addprefix $(DBGDIR), $(OBJECTS))
 DBGMODS = $(wildcard $(DBGDIR)*.mod)
-dbg : DFFLAGS = -O0 -g -debug $(FFLAGS)
+dbg : DFFLAGS = -O0 -debug -g -traceback -warn $(FFLAGS)
 dbg : $(DBGTARGET)
 $(DBGTARGET) : $(DBGOBJS)
 	$(FC) $(DFFLAGS) -o $@ $^
 $(DBGOBJS) : $(DBGDIR)%.o : %.f90
-	if [ ! -d "$(DBGDIR)" ]; then mkdir -p $(DBGDIR); fi
 	$(FC) $(DFFLAGS) -c $< -o $@ -module $(DBGDIR)
 
+#release
+RLSTARGET = $(RLSDIR)$(EXEC)
+RLSOBJS = $(addprefix $(RLSDIR), $(OBJECTS))
+RLSMODS = $(wildcard $(RLSDIR)*.mod)
+rls : RFFLAGS = -O3 -ip -ipo -xHost -static -mtune=pentium4m $(FFLAGS)
+rls : $(RLSTARGET)
+$(RLSTARGET) : $(RLSOBJS)
+	$(FC) $(RFFLAGS) -o $@ $^
+$(RLSOBJS) : $(RLSDIR)%.o : %.f90
+	$(FC) $(RFFLAGS) -c $< -o $@ -module $(RLSDIR)
+
+
+#make debug directory
+dbgdir :
+	if [ ! -d "$(DBGDIR)" ]; then mkdir -p $(DBGDIR); fi
+
+#make release directory
+rlsdir :
+	if [ ! -d "$(RLSDIR)" ]; then mkdir -p $(RLSDIR); fi
+
+#clean debug files
+cldbg :
+	rm -f $(DBGOBJS) $(DBGMODS) $(DBGTARGET)
+
+#clean release files
+clrls :
+	rm -f $(RLSOBJS) $(RLSMODS) $(RLSTARGET)
+
+#run debug
 rundbg : $(DBGTARGET)
 	if [ ! -d "$(DBGDATDIR)" ]; then mkdir -p $(DBGDATDIR); fi
 	cd $(DBGDATDIR) && ../../$<
 
-#clean debug files
-cldbg :
-	rm -f $(DBGOBJS) $(DBGMODS) $(DBGTARGET) 
+#run release
+runrls : $(RLSTARGET)
+	if [ ! -d "$(RLSDATDIR)" ]; then mkdir -p $(RLSDATDIR); fi
+	cd $(RLSDATDIR) && ../../$<
 
-#clean release files
-clrls :
-	rm -f $(RLSOBJS) $(RLSMODS) $(RLSTARGET) 
+#make directories
+dir: dbgdir rlsdir
 
 #clean && debug
-cdbg : cldbg dbg
+cndbg : cldbg dbg
 
 #clean && release
-crls : clrls rls
+cnrls : clrls rls
 
 #clean
-clean: cldbg clrls
+clean : cldbg clrls
 
 #make tags
 ctags : $(FILES)
@@ -73,5 +85,5 @@ cscope : $(FILES)
 tags : ctags cscope
 
 #documents by doxygen
-doc : 
-	doxygen
+doc :
+	doxygen Doxyfile
