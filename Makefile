@@ -1,12 +1,23 @@
-#writtn by Xue Bing
+#written by Xue Bing
 #2014-01-10
 
 #fortran complier
-#FC     = ifort
-FC     = gfortran
+#FC     = gfortran
+FC     = ifort
+
 LAPACK = -llapack
 #LAPACK = -L/opt/OpenBlas/lib/libopenblas.so
 FFLAGS = -static -fpe3 -warn $(LAPACK)
+
+ifeq ($(FC), gfortran)
+	DBG_FLAGS = -pipe -O0 -static -fno-exceptions -g -ggdb -fbacktrace -Wall -Wextra -mtune=k8 $(LAPACK) -J$(DBG_DIR)
+	RLS_FLAGS = -pipe -O3 -static -fno-exceptions -Wall -Wextra -mtune=k8 $(LAPACK) -J$(RLS_DIR)
+endif
+
+ifeq ($(FC), ifort)
+	DBG_FLAGS = -O0 -debug -g -traceback $(FFLAGS) -module $(DBG_DIR)
+	RLS_FLAGS = -O3 -ip -ipo -xHost -mtune=pentium4m $(FFLAGS) -module $(RLS_DIR)
+endif
 
 SRC_DIR = src/
 BUILD_DIR = build/
@@ -28,8 +39,7 @@ default : dbg
 DBG_TARGET = $(DBG_DIR)$(EXEC)
 DBG_OBJS = $(addprefix $(DBG_DIR), $(OBJECTS))
 DBG_MODS = $(wildcard $(DBG_DIR)*.mod)
-#dbg : DFFLAGS = -O0 -debug -g -traceback $(FFLAGS) -module $(DBG_DIR)
-dbg : DFFLAGS =-pipe -O0 -static -fno-exceptions -g -ggdb -fbacktrace -Wall -Wextra -mtune=k8 $(LAPACK) -J$(DBG_DIR)
+dbg : DFFLAGS = $(DBG_FLAGS)
 dbg : $(DBG_TARGET)
 $(DBG_TARGET) : $(DBG_OBJS)
 	$(FC) $(DFFLAGS) -o $@ $^
@@ -41,8 +51,7 @@ $(DBG_OBJS) : $(DBG_DIR)%.o : %.f90
 RLS_TARGET = $(RLS_DIR)$(EXEC)
 RLS_OBJS = $(addprefix $(RLS_DIR), $(OBJECTS))
 RLS_MODS = $(wildcard $(RLS_DIR)*.mod)
-#rls : RFFLAGS = -O3 -ip -ipo -xHost -mtune=pentium4m $(FFLAGS) -module $(RLS_DIR)
-rls : RFFLAGS = -pipe -O3 -static -fno-exceptions -Wall -Wextra -mtune=k8 $(LAPACK) -J$(RLS_DIR)
+rls : RFFLAGS = $(RLS_FLAGS)
 rls : $(RLS_TARGET)
 $(RLS_TARGET) : $(RLS_OBJS)
 	$(FC) $(RFFLAGS) -o $@ $^
