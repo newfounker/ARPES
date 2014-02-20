@@ -1,4 +1,4 @@
-#writtn by Xue Bing 
+#writtn by Xue Bing
 #2014-01-10
 
 #fortran complier
