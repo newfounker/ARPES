@@ -2,21 +2,22 @@
 #2014-01-10
 
 #fortran complier
-#FC     = gfortran
-FC     = ifort
+FC     = gfortran
+#FC     = ifort
 
 LAPACK = -llapack
 #LAPACK = -L/opt/OpenBlas/lib/libopenblas.so
-FFLAGS = -static -fpe3 -warn $(LAPACK)
+IFFLAGS = -static -fpe3 -warn $(LAPACK)
+GFFLAGS = -pipe -static -fno-exceptions -Wall -Wextra -mtune=k8 $(LAPACK)
 
 ifeq ($(FC), gfortran)
-	DBG_FLAGS = -pipe -O0 -static -fno-exceptions -g -ggdb -fbacktrace -Wall -Wextra -mtune=k8 $(LAPACK) -J$(DBG_DIR)
-	RLS_FLAGS = -pipe -O3 -static -fno-exceptions -Wall -Wextra -mtune=k8 $(LAPACK) -J$(RLS_DIR)
+	DBG_FLAGS = -O0 -g -ggdb -fbacktrace $(GFFLAGS) -J$(DBG_DIR)
+	RLS_FLAGS = -O3 $(GFFLAGS) -J$(RLS_DIR)
 endif
 
 ifeq ($(FC), ifort)
-	DBG_FLAGS = -O0 -debug -g -traceback $(FFLAGS) -module $(DBG_DIR)
-	RLS_FLAGS = -O3 -ip -ipo -xHost -mtune=pentium4m $(FFLAGS) -module $(RLS_DIR)
+	DBG_FLAGS = -O0 -debug -g -traceback $(IFFLAGS) -module $(DBG_DIR)
+	RLS_FLAGS = -O3 -ip -ipo -xHost -mtune=pentium4m $(IFFLAGS) -module $(RLS_DIR)
 endif
 
 SRC_DIR = src/
