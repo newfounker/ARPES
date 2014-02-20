@@ -62,21 +62,21 @@ $(RLS_OBJS) : $(RLS_DIR)%.o : %.f90
 
 #clean debug files
 cldbg :
-	rm -f $(DBG_OBJS) $(DBG_MODS) $(DBG_TARGET)
+	rm -rf $(DBG_DIR)
 
 #clean release files
 clrls :
-	rm -f $(RLS_OBJS) $(RLS_MODS) $(RLS_TARGET)
+	rm -rf $(RLS_DIR)
 
 #run debug
-rundbg : $(DBG_TARGET)
+rundbg :
 	@if [ ! -d "$(DBG_DAT_DIR)" ]; then mkdir -p $(DBG_DAT_DIR); fi
-	@cd $(DBG_DAT_DIR) && ../../$<
+	@cd $(DBG_DAT_DIR) && ../../$(DBG_TARGET)
 
 #run release
-runrls : $(RLS_TARGET)
+runrls :
 	@if [ ! -d "$(RLS_DAT_DIR)" ]; then mkdir -p $(RLS_DAT_DIR); fi
-	@cd $(RLS_DAT_DIR) && ../../$<
+	@cd $(RLS_DAT_DIR) && ../../$(RLS_TARGET)
 
 #clean && debug
 cndbg : cldbg dbg
